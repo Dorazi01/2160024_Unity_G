@@ -22,13 +22,17 @@ public class LavaBehavior : MonoBehaviour
     {
         transform.Translate(Vector3.up * flavaSpeed); // Lava moves downwards
 
-        if (transform.position.y > 50f)
+        if (transform.position.y > 10f)
         {
             flavaSpeed = 0.04f;
         }
-        else if (transform.position.y > 100f)
+        else if (transform.position.y > 50f)
         {
             flavaSpeed = 0.06f;
+        }
+        else if (transform.position.y > 100f)
+        {
+            flavaSpeed = 0.08f;
         }
     }
 }

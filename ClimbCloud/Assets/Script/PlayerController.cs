@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
 
     float fMaxPositionX = 4.0f;
     float fMinPositionX = -4.0f;
-    float fPositionX = 0.0f;
 
     public Transform player; // 최대 높이를 체크하기위한 플레이어 오브젝트 설정
     public TextMeshProUGUI resultText; // 게임오버시 최종높이를 보여주는 텍스트 오브젝트
@@ -23,13 +22,13 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D m_rigid2DCat = null;
     Animator m_animatorCat = null;
     //플레이어에 가할 힘 값을 저장할 변수
-    float fjumpForce = 380.0f;
+    float f_jumpForce = 7.0f;
     //플레이어 좌, 우로 움직이는 가속도
-    float fwalkForce = 20.0f;
+    float f_walkForce = 3.0f;
     //플레이어의 이동속도가 지정한 최고 속도
-    float fmaxWalkSpeed = 2.0f;
-    //플레이아 좌우 움직임 키 값: 오른쪽 화살 키 -> 1,왼쪽 화살 키 -> 1, 움직이지 않을  -> 0 
-    int nleftRightKeyValue = 0;
+
+    bool b_isDead = false;
+    
 
     void Start()
     {
@@ -43,10 +42,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        //플레이어 이동
-        Move();
-        // 점프
-        Jump();
+        if (!b_isDead)
+        {
+            //플레이어 이동
+            Move();
+            // 점프
+            Jump();
+        }
+        
 
 
 
@@ -62,41 +65,25 @@ public class PlayerController : MonoBehaviour
     }
 
     void Move()
-    {
-        // 좌우이동
-        // 플레이어를 오른쪽으로 이동시키는 코드
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            nleftRightKeyValue = 1;
-        }
-        // 플레이어를 왼쪽으로 이동시키는 코드
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            nleftRightKeyValue = -1;
-        }
-        else
-        {
-            nleftRightKeyValue = 0;
-        }
-        fPositionX = Mathf.Clamp(transform.position.x, fMinPositionX, fMaxPositionX);
-        transform.position = new Vector3(fPositionX, transform.position.y, transform.position.z);
+    {   
+        
 
+        float horizontal = Input.GetAxisRaw("Horizontal"); // 좌우키 입력값
+
+        m_rigid2DCat.linearVelocity = new Vector2(horizontal * f_walkForce, m_rigid2DCat.linearVelocity.y);
+        //캐릭터 관성 삭제 
+
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, fMinPositionX,fMaxPositionX), transform.position.y, 0); // 플레이어의 x좌표를 제한한다.
+        // 좌우 X좌표 이동 제한
+
+
+
+        
 
         // 플레이어 스피드
         float speedx = Mathf.Abs(m_rigid2DCat.linearVelocity.x);
 
-        // 스피드 제한
-        if (speedx < fmaxWalkSpeed)
-        {
-            m_rigid2DCat.AddForce(transform.right * fwalkForce * nleftRightKeyValue);
-        }
-
-        // 움직이는 방향에 따라 반전한다.
-        if (nleftRightKeyValue != 0)
-        {
-            transform.localScale = new Vector3(nleftRightKeyValue, 1, 1);
-        }
-        // 플레이어 속도에 맞춰 애니메이션 속도를 바꾼다.
+        // 플레이어 속도에 맞춰 애니메이션 속도 변화
         if (m_rigid2DCat.linearVelocity.y == 0)
         {
             m_animatorCat.speed = speedx / 2.0f;
@@ -110,26 +97,55 @@ public class PlayerController : MonoBehaviour
             maxHeight = player.position.y;
         }
 
+        
+        //캐릭터 모델 방향 전환
+        if (horizontal < 0)
+        {
+            transform.localScale = new Vector3(horizontal, 1, 1);
+        }
+        else if (horizontal > 0)
+        {
+            transform.localScale = new Vector3(horizontal, 1, 1);
+        }
+        
+
+
+        
+
     }
 
     void Jump()
     {
-
-        //스페이스바 누를 시 점프 실행
+        
+        //스페이스바 누를 시 점프 진행
         if (Input.GetKeyDown(KeyCode.Space) && m_rigid2DCat.linearVelocity.y == 0)
         {
             m_animatorCat.SetTrigger("JumpTrigger");
 
-            m_rigid2DCat.AddForce(transform.up * fjumpForce);
+            m_rigid2DCat.linearVelocity = new Vector2(m_rigid2DCat.linearVelocity.x, f_jumpForce); 
 
         }
+
+        //스페이스바 떼면 점프 관성 삭제
+        if (m_rigid2DCat.linearVelocity.y > 0f)     //추락할때는 작동하지 않음
+        {
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+
+                m_rigid2DCat.linearVelocity = new Vector2(m_rigid2DCat.linearVelocity.x, 0); // 점프시 관성 삭제
+
+            }
+        }
+        
+
+
     }
 
 
 
     void GameOver()
     {
-        
+        b_isDead = true; // 게임오버 상태로 변경
         curHeight.gameObject.SetActive(false);
         resultText.gameObject.SetActive(true); //결과 텍스트를 보이게 함
         resultText.text = "Best Height: " + maxHeight.ToString("F1") + "m"; // TMP 텍스트에 최종 높이를 소수점 1자리로 표시한다.
