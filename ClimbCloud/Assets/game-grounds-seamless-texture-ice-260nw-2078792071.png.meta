@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      game-grounds-seamless-texture-ice-260nw-2078792071_0: 5960451158273913652
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
