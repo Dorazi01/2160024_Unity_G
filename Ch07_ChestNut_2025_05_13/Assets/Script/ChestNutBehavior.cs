@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class ChestNutBehavior : MonoBehaviour
 {
-
+    
     public void Shoot(Vector3 dir)
     {
         GetComponent<Rigidbody>().AddForce(dir);
+        
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -22,6 +23,8 @@ public class ChestNutBehavior : MonoBehaviour
         {
             GetComponent<Rigidbody>().isKinematic = true;
             GetComponent<ParticleSystem>().Play();
+            GameManager.instance.score++;
+
         }
     }
 }

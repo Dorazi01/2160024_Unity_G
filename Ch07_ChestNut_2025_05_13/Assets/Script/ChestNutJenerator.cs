@@ -10,15 +10,19 @@ public class ChestNutJenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
         {
-            GameObject bamsongi = Instantiate(bamsongiPrefab);
+            Camera cam = Camera.main;
+            Vector3 spawnPos = cam.transform.position + cam.transform.forward * 1.0f; // 카메라 앞 1만큼
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            GameObject bamsongi = Instantiate(bamsongiPrefab, spawnPos, Quaternion.identity);
+
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
             Vector3 worldDir = ray.direction;
-            
 
             bamsongi.GetComponent<ChestNutBehavior>().Shoot(worldDir.normalized * 2000);
         }
+
     }
+    
 }
