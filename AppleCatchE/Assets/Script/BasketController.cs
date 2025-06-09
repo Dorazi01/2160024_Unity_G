@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BasketController : MonoBehaviour
 {
-    
+    Material[] materials;
     public AudioClip appleSE;
     public AudioClip bombSE;
     AudioSource aud;
@@ -17,6 +17,7 @@ public class BasketController : MonoBehaviour
         this.director = GameObject.Find("GameDirector");
     }
 
+
     
     void OnTriggerEnter(Collider other)
     {
@@ -24,13 +25,27 @@ public class BasketController : MonoBehaviour
         {
             this.aud.PlayOneShot(this.appleSE);
             this.director.GetComponent<GameDirector>().GetApple();
+            Destroy(other.gameObject);
         }
-        else
+        else if (other.gameObject.tag == "Bomb")
         {
             this.aud.PlayOneShot(this.bombSE);
             this.director.GetComponent<GameDirector>().GetBomb();
+            Destroy(other.gameObject);
         }
-        Destroy(other.gameObject);
+        else if (other.gameObject.tag == "Clock")
+        {
+            this.director.GetComponent<GameDirector>().GetClock();
+            Destroy(other.gameObject);
+        }
+
+        else if (other.gameObject.tag == "GoldenApple")
+        {
+            this.aud.PlayOneShot(this.appleSE);
+            this.director.GetComponent<GameDirector>().GetGoldenApple();
+            Destroy(other.gameObject);
+
+        }
     }
 
     void Update()
@@ -47,5 +62,8 @@ public class BasketController : MonoBehaviour
             }
         }
     }
+
+
     
+
 }
